@@ -107,12 +107,19 @@ $(function() {
             var self = this;
 
             self.initCameraSelection();
+            
             $(".controls").on("click", "button.stop", function(e) {
                 e.preventDefault();
                 Quagga.stop();
                 self._printCollectedResults();
             });
 
+            $(".controls").on("click", "button.start", function(e) {
+                e.preventDefault();
+                Quagga.start();
+//                 self._printCollectedResults();
+            });
+            
             $(".controls .reader-config-group").on("change", "input, select", function(e) {
                 e.preventDefault();
                 var $target = $(e.target),
