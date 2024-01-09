@@ -1,5 +1,11 @@
+//this is my modification to the original JS
+
+var resultList=[];//first list with codbar only
+var resultWithQList=[];//second list with Code bar and Quantity
+
 $(function() {
-    var resultList=[];
+    
+    
     var resultCollector = Quagga.ResultCollector.create({
         capture: true,
         capacity: 20,
@@ -19,24 +25,35 @@ $(function() {
         filter: function(codeResult) {
             // only store results which match this constraint
             // e.g.: codeResult
+            if(codeResult === "") return false;
+            
             let RESULTRET = true;
             if (resultList.length > 0){ 
                 
                 //console.log("Check if result is in list");
                 $.each(resultList, function(Code_idX) {
                     
-                    if(resultList[Code_idX] === codeResult.code)
+                    if(resultList[Code_idX].code === codeResult.code)
                     {
                         //console.log("result is in list");
                         RESULTRET = false;
                     }
                 });
-                if (RESULTRET) 
-                    resultList.push(codeResult.code);
+                
+                if (RESULTRET) {
+                    
+//                     resultList.push(codeResult.code);
+                    resultList.push(InitNewObj(codeResult.code));
+                    
+                }
                 
             }
-            else
-                resultList.push(codeResult.code);
+            else{
+                    
+//                     resultList.push(codeResult.code);
+                    resultList.push(InitNewObj(codeResult.code));
+                    
+                }
             
             return RESULTRET;
         }
@@ -106,6 +123,7 @@ $(function() {
         initCameraSelection: function(){
             var streamLabel = Quagga.CameraAccess.getActiveStreamLabel();
 
+            //NOTICE il revient par ici apres la seelction de la camera dans la liste ??!
             return Quagga.CameraAccess.enumerateVideoDevices()
             .then(function(devices) {
                 function pruneText(text) {
@@ -141,6 +159,7 @@ $(function() {
 //                 self._printCollectedResults();
             });
             
+
             $(".controls .reader-config-group").on("change", "input, select", function(e) {
                 e.preventDefault();
                 var $target = $(e.target),
@@ -154,7 +173,7 @@ $(function() {
         },
         _printCollectedResults: function() {
 //             TODO ca fait quoi exactement ?? WARNING j'ai modifé les h4 à la fin !!'
-//             ok donc ca affiche tous les scans effectués même si ils sont identiques, il faudrait filtrer et garder un seul exemplaire !
+//             ok donc ca affiche tous les scans effectués selon le filtre du debut
             var results = resultCollector.getResults(),
                 $ul = $("#result_strip ul.collector");
 
@@ -316,15 +335,62 @@ $(function() {
         if (App.lastResult !== code) {
             App.lastResult = code;
             var $node = null, canvas = Quagga.canvas.dom.image;
-
-            $node = $('<li><div class="thumbnail"><div class="imgWrapper"><img /></div><div class="caption"><button class="code"></button></div></div></li>');
+            //WARNING mon bouton est trop petit
+            $node = $('<li><div class="thumbnail"><div class="imgWrapper"><img /></div><div class="caption"><button>Check</button><span size="8"></span> Q:<input id="ID_Q" onkeypress="return AddQ(this)" maxlength="4" size="4"><button onclick="return Del(this)">Del</button></div></div></li>');
             $node.find("img").attr("src", canvas.toDataURL());
-            $node.find("button.code").html(code);
+            $node.find("span").html(" "+code);
+            $node.find("input").attr("id", code);
+            $node.find("button").attr("id", code);//WARNING pas top car on a 2 x le mm id !!
+            $node.find("li").attr("class", "Main"+code);//WARNING MARCHE PAS
+            $node.find("li").attr("id", "Main"+code);// A TESTER !
             $("#result_strip ul.thumbnails").prepend($node);
         }
     });
 
+    
+    
 });
 
+function AddQ(OBJ) {
+    
+    MODLIST(OBJ,"A");
 
+}
 
+function Del(OBJ) {
+    
+    MODLIST(OBJ,"D");
+
+}
+
+function MODLIST(OBJ, MODE) {
+        
+    let TOTOID=OBJ.id;// ou  OBJ.innerText 
+    console.log("Add this value : "+OBJ.value+"to this codebare : "+OBJ.id);
+    console.log(resultList);
+    $.each(resultList, function(Code_idX) {
+                    
+        if(resultList[Code_idX].code === OBJ.id)
+        {
+            if( MODE === "A" )
+                resultList[Code_idX].quantity = OBJ.value;
+            
+            if( MODE === "D" ){
+                
+                //TODO il faut enlever du tableau 
+                //TODO il faut enlever aussi le node <li> entier grace à son 
+                $("#result_strip ul.thumbnails"+" li.Main"+code).empty();
+            }
+            
+        }
+    });
+            
+}
+
+function InitNewObj(code) {
+    
+    TESTOBJ = new Object;
+    TESTOBJ.code = code;
+    TESTOBJ.quantity = "0";
+    return TESTOBJ;
+}
