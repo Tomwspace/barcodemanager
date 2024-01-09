@@ -1,4 +1,5 @@
 $(function() {
+    var resultList=[];
     var resultCollector = Quagga.ResultCollector.create({
         capture: true,
         capacity: 20,
@@ -18,7 +19,26 @@ $(function() {
         filter: function(codeResult) {
             // only store results which match this constraint
             // e.g.: codeResult
-            return true;
+            let RESULTRET = true;
+            if (resultList.length > 0){ 
+                
+                //console.log("Check if result is in list");
+                $.each(resultList, function(Code_idX) {
+                    
+                    if(resultList[Code_idX] === codeResult.code)
+                    {
+                        //console.log("result is in list");
+                        RESULTRET = false;
+                    }
+                });
+                if (RESULTRET) 
+                    resultList.push(codeResult.code);
+                
+            }
+            else
+                resultList.push(codeResult.code);
+            
+            return RESULTRET;
         }
     });
     var App = {
@@ -29,7 +49,8 @@ $(function() {
                 if (err) {
                     return self.handleError(err);
                 }
-                //Quagga.registerResultCollector(resultCollector);
+                //WARNING WAS Commented so try it :
+                Quagga.registerResultCollector(resultCollector);
                 App.attachListeners();
                 App.checkCapabilities();
                 Quagga.start();
@@ -133,6 +154,7 @@ $(function() {
         },
         _printCollectedResults: function() {
 //             TODO ca fait quoi exactement ?? WARNING j'ai modifé les h4 à la fin !!'
+//             ok donc ca affiche tous les scans effectués même si ils sont identiques, il faudrait filtrer et garder un seul exemplaire !
             var results = resultCollector.getResults(),
                 $ul = $("#result_strip ul.collector");
 
@@ -303,3 +325,6 @@ $(function() {
     });
 
 });
+
+
+
