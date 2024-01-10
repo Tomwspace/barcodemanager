@@ -139,12 +139,19 @@ $(function() {
                 e.preventDefault();
                 Quagga.stop();
                 self._printCollectedResults();
+                console.log("Add a list there");
+                var $malisteplace = $("#result_strip ul.list");
+                var $list = $('<li><h4>Liste finale</h4><div id="liste_finale"></div></li>');
+                $malisteplace.prepend($list);
+                var $main_div = $("#liste_finale");
+                $main_div.prepend($(ReadList()));
+                
             });
 
             $(".controls").on("click", "button.start", function(e) {
                 e.preventDefault();
-                Quagga.start();
-//                 self._printCollectedResults();
+                App.init();
+//                 Quagga.start();
             });
             
 
@@ -160,8 +167,7 @@ $(function() {
             });
         },
         _printCollectedResults: function() {
-//             TODO ca fait quoi exactement ?? WARNING j'ai modifé les h4 à la fin !!'
-//             ok donc ca affiche tous les scans effectués selon le filtre du debut
+            //ca affiche tous les scans effectués selon le filtre du debut
             var results = resultCollector.getResults(),
                 $ul = $("#result_strip ul.collector");
 
@@ -398,11 +404,13 @@ function MODLIST(OBJ, MODE) {
 }
 
 //initialise un nouvel objet pour copie dans la liste "resultList"
+//Donc permet d'ajouter de nouveau objet facilement comme un distributeur ou autre...
 function InitNewObj(code) {
     
     TESTOBJ = new Object;
     TESTOBJ.code = code;
     TESTOBJ.quantity = "0";
+    TESTOBJ.distributor = "nc";
     return TESTOBJ;
 }
 
@@ -418,8 +426,7 @@ function CheckIfInList(code){
         
     });
     
-    return RET;
-    
+    return RET;   
 }
 
 //Verifie si le code est dejà present dans la liste <li>
@@ -437,7 +444,17 @@ function CheckIfInLIList(code){
         
     });
     
-    
     return RET;
+}
+
+//retourne la liste "resultList"
+
+function ReadList(){
+    let RET = "";
+    $.each(resultList, function(code_idx) {
+        RET = RET+"<p>"+resultList[code_idx].code+" Q: "+resultList[code_idx].quantity+" Dist: "+resultList[code_idx].distributor+"</p>";
+        
+    });
     
+    return RET;   
 }
